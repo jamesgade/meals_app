@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:meals_app/providers/filters_provider.dart';
 // import 'package:meals_app/widgets/main_drawer.dart';
 // import 'package:meals_app/screens/tabs.dart';
 
-enum Filter { glutenFree, lactoseFree, isVegetarian, isVegan }
-
-class FiltersScreen extends StatefulWidget {
-  const FiltersScreen({super.key, required this.currentFilters});
-
-  final Map<Filter, bool> currentFilters;
+class FiltersScreen extends ConsumerStatefulWidget {
+  const FiltersScreen({super.key});
 
   @override
-  State<FiltersScreen> createState() {
+  ConsumerState<FiltersScreen> createState() {
     return _FiltersScreenState();
   }
 }
 
-class _FiltersScreenState extends State<FiltersScreen> {
+class _FiltersScreenState extends ConsumerState<FiltersScreen> {
   var _isGlutenFreeFilterSet = false;
   var _isLactoseFreeFilterSet = false;
   var _isVegetarianFilterSet = false;
@@ -24,10 +22,11 @@ class _FiltersScreenState extends State<FiltersScreen> {
   @override
   void initState() {
     super.initState();
-    _isGlutenFreeFilterSet = widget.currentFilters[Filter.glutenFree]!;
-    _isLactoseFreeFilterSet = widget.currentFilters[Filter.lactoseFree]!;
-    _isVegetarianFilterSet = widget.currentFilters[Filter.isVegetarian]!;
-    _isVeganFilterSet = widget.currentFilters[Filter.isVegan]!;
+    final currentFilters = ref.read(filtersProvider);
+    _isGlutenFreeFilterSet = currentFilters[Filter.glutenFree]!;
+    _isLactoseFreeFilterSet = currentFilters[Filter.lactoseFree]!;
+    _isVegetarianFilterSet = currentFilters[Filter.isVegetarian]!;
+    _isVeganFilterSet = currentFilters[Filter.isVegan]!;
   }
 
   @override
@@ -49,14 +48,15 @@ class _FiltersScreenState extends State<FiltersScreen> {
       // ),
       body: WillPopScope(
         onWillPop: () async {
-          Navigator.of(context).pop({
+          ref.read(filtersProvider.notifier).setFilters({
             Filter.glutenFree: _isGlutenFreeFilterSet,
             Filter.lactoseFree: _isLactoseFreeFilterSet,
             Filter.isVegetarian: _isVegetarianFilterSet,
             Filter.isVegan: _isVeganFilterSet,
           });
+          // Navigator.of(context).pop();   // no need anymore as flutter will pop automatically
 
-          return false;
+          return true;
         },
         child: Column(
           children: [
