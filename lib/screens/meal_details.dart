@@ -14,28 +14,41 @@ class MealDetailsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final favouriteMeals = ref.watch(favouriteMealsProvider);
+
+    final isFavorite = favouriteMeals.contains(meal);
     return Scaffold(
       appBar: AppBar(
         title: Text(meal.title),
         actions: [
           IconButton(
-              onPressed: () {
-                final wasAdded = ref
-                    .read(favouriteMealsProvider.notifier)
-                    .toggleFavouriteMealStatus(meal);
-                ScaffoldMessenger.of(context).clearSnackBars();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(wasAdded
-                        ? "Meal added to favourites"
-                        : "Mean removed from favourites"),
-                    duration: const Duration(seconds: 3),
-                  ),
+            onPressed: () {
+              final wasAdded = ref
+                  .read(favouriteMealsProvider.notifier)
+                  .toggleFavouriteMealStatus(meal);
+              ScaffoldMessenger.of(context).clearSnackBars();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(wasAdded
+                      ? "Meal added to favourites"
+                      : "Mean removed from favourites"),
+                  duration: const Duration(seconds: 3),
+                ),
+              );
+            },
+            icon: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) {
+                return RotationTransition(
+                  turns: animation,
+                  child: child,
                 );
               },
-              icon: Icon(favouriteMeals.contains(meal)
-                  ? Icons.star
-                  : Icons.star_border))
+              child: Icon(
+                isFavorite ? Icons.star : Icons.star_border,
+                key: ValueKey(isFavorite),
+              ),
+            ),
+          )
         ],
       ),
       body: SingleChildScrollView(
@@ -62,7 +75,7 @@ class MealDetailsScreen extends ConsumerWidget {
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: Theme.of(context).colorScheme.onBackground,
                     ),
-              ), 
+              ),
             const SizedBox(height: 24),
             Text(
               'Steps',
